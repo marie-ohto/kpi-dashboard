@@ -28,6 +28,7 @@ jobs:
           python3 send-report.py
         env:
           SURGE_TOKEN:   ${{ secrets.SURGE_TOKEN }}
+          SURGE_DOMAIN:  diagram-dashboard-poc.surge.sh
           GMAIL_USER:    ${{ secrets.GMAIL_USER }}
           GMAIL_PASS:    ${{ secrets.GMAIL_PASS }}
           REPORT_TO:     ${{ secrets.REPORT_TO }}

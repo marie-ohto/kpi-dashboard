@@ -13,7 +13,9 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - name: 依存パッケージをインストール
-        run: pip install openpyxl playwright requests
+        run: |
+          pip install openpyxl playwright requests
+          playwright install chromium
       - name: Excel を Drive から取得
         run: python3 download-excel.py
         env:

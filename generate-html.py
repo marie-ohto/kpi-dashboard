@@ -559,9 +559,9 @@ def generate_overview(metrics: dict) -> str:
         <h2 class="text-base font-bold text-ads-text">支社別ランキング</h2>
         <span class="text-xs text-ads-dim px-2 py-0.5 rounded-full border border-ads-border" style="background:#f7f5ef;">生産性 / 標準比</span>
       </div>
-      <div class="bg-ads-surface rounded-xl border border-ads-border p-4">
+        <div class="bg-ads-surface rounded-xl border border-ads-border p-4">
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">生産性（1時間あたり処理件数）</p>
-        {bar_chart_svg(bureaus, baseline)}
+        <div id="overview-clip-end">{bar_chart_svg(bureaus, baseline)}</div>
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">標準比（基準値{baseline:.0f}件/h に対する達成率）</p>
         {rank_table_html(bureaus)}
         <div class="space-y-1.5 text-xs text-ads-muted leading-relaxed">
@@ -647,7 +647,7 @@ def generate_individual(metrics: dict) -> str:
 
       <div class="bg-ads-surface rounded-xl border border-ads-border p-4 mb-4">
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">個人別ランキング</p>
-        {bar_chart_svg(individuals, baseline)}
+        <div id="individual-clip-end">{bar_chart_svg(individuals, baseline)}</div>
         {rank_table_html(individuals)}
         <div class="space-y-1.5 text-xs text-ads-muted leading-relaxed">
 {comments_individual(individuals, baseline)}

@@ -36,8 +36,9 @@ INDIVIDUAL_HTML  = "output/dashboard-individual.html"
 # スクリーンショット取得
 # ====================================================================
 
-def screenshot(html_path: str, out_path: str, width: int = 1000) -> bool:
-    """Playwright で HTML をスクリーンショット撮影"""
+def screenshot(html_path: str, out_path: str, width: int = 1000, clip_marker_id: str | None = None) -> bool:
+    """Playwright で HTML をスクリーンショット撮影。
+    clip_marker_id を指定すると、そのIDを持つ要素の底辺までをクリップする。"""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -49,10 +50,20 @@ def screenshot(html_path: str, out_path: str, width: int = 1000) -> bool:
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page    = browser.new_page(viewport={"width": width, "height": 900})
+        page    = browser.new_page(viewport={"width": width, "height": 1200})
         page.goto(file_url, wait_until="networkidle", timeout=30000)
         page.wait_for_timeout(1500)  # フォント・アイコン読み込み待機
-        page.screenshot(path=out_path, full_page=True)
+
+        if clip_marker_id:
+            el = page.locator(f"#{clip_marker_id}").first
+            box = el.bounding_box()
+            if box:
+                clip_height = int(box["y"] + box["height"] + 40)  # 余白40px
+                page.screenshot(path=out_path, clip={"x": 0, "y": 0, "width": width, "height": clip_height})
+            else:
+                page.screenshot(path=out_path, full_page=True)
+        else:
+            page.screenshot(path=out_path, full_page=True)
         browser.close()
 
     print(f"  スクリーンショット: {out_path}")
@@ -163,12 +174,14 @@ def main():
         ind_ok = False
 
         if os.path.exists(OVERVIEW_HTML):
-            ov_ok = screenshot(OVERVIEW_HTML, ov_png)
+            # KPIカード〜支社別ランキング（生産性グラフ）までをキャプチャ
+            ov_ok = screenshot(OVERVIEW_HTML, ov_png, clip_marker_id="overview-clip-end")
         else:
             print(f"WARNING: {OVERVIEW_HTML} が見つかりません。スクリーンショットをスキップします。")
 
         if os.path.exists(INDIVIDUAL_HTML):
-            ind_ok = screenshot(INDIVIDUAL_HTML, ind_png)
+            # 個人別ビュー：最初の支社の個人ランキングまでをキャプチャ
+            ind_ok = screenshot(INDIVIDUAL_HTML, ind_png, clip_marker_id="individual-clip-end")
         else:
             print(f"WARNING: {INDIVIDUAL_HTML} が見つかりません。スクリーンショットをスキップします。")
 

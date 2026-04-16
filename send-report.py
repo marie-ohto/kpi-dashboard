@@ -36,9 +36,11 @@ INDIVIDUAL_HTML  = "output/dashboard-individual.html"
 # スクリーンショット取得
 # ====================================================================
 
-def screenshot(html_path: str, out_path: str, width: int = 1000, clip_marker_id: str | None = None) -> bool:
+def screenshot(html_path: str, out_path: str, width: int = 1000,
+               clip_marker_id: str | None = None, hide_email_elements: bool = False) -> bool:
     """Playwright で HTML をスクリーンショット撮影。
-    clip_marker_id を指定すると、そのIDを持つ要素の底辺までをクリップする。"""
+    clip_marker_id を指定すると、そのIDを持つ要素の底辺までをクリップする。
+    hide_email_elements=True にすると data-email-hide="true" の要素を非表示にしてから全ページ撮影する。"""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -53,6 +55,9 @@ def screenshot(html_path: str, out_path: str, width: int = 1000, clip_marker_id:
         page    = browser.new_page(viewport={"width": width, "height": 1200})
         page.goto(file_url, wait_until="networkidle", timeout=30000)
         page.wait_for_timeout(1500)  # フォント・アイコン読み込み待機
+
+        if hide_email_elements:
+            page.evaluate("document.querySelectorAll('[data-email-hide]').forEach(el => el.style.display = 'none')")
 
         if clip_marker_id:
             el = page.locator(f"#{clip_marker_id}").first
@@ -180,8 +185,8 @@ def main():
             print(f"WARNING: {OVERVIEW_HTML} が見つかりません。スクリーンショットをスキップします。")
 
         if os.path.exists(INDIVIDUAL_HTML):
-            # 個人別ビュー：最初の支社の個人ランキングまでをキャプチャ
-            ind_ok = screenshot(INDIVIDUAL_HTML, ind_png, clip_marker_id="individual-clip-end")
+            # 個人別ビュー：ランキング棒グラフのみ（テーブル・コメント・トレンドは非表示）で全局分
+            ind_ok = screenshot(INDIVIDUAL_HTML, ind_png, hide_email_elements=True)
         else:
             print(f"WARNING: {INDIVIDUAL_HTML} が見つかりません。スクリーンショットをスキップします。")
 

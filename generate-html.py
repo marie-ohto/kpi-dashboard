@@ -647,14 +647,14 @@ def generate_individual(metrics: dict) -> str:
 
       <div class="bg-ads-surface rounded-xl border border-ads-border p-4 mb-4">
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">個人別ランキング</p>
-        <div id="individual-clip-end">{bar_chart_svg(individuals, baseline)}</div>
-        {rank_table_html(individuals)}
-        <div class="space-y-1.5 text-xs text-ads-muted leading-relaxed">
+        {bar_chart_svg(individuals, baseline)}
+        <div data-email-hide="true">{rank_table_html(individuals)}</div>
+        <div class="space-y-1.5 text-xs text-ads-muted leading-relaxed" data-email-hide="true">
 {comments_individual(individuals, baseline)}
         </div>
       </div>
 
-      <div class="bg-ads-surface rounded-xl border border-ads-border p-4">
+      <div class="bg-ads-surface rounded-xl border border-ads-border p-4" data-email-hide="true">
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">個人別 日別生産性トレンド</p>
         {line_chart_svg(individuals, all_dates, height=160)}
       </div>

@@ -2,8 +2,8 @@ name: 毎朝レポート配信
 
 on:
   schedule:
-    - cron: '45 23 * * 0-4'  # 月〜金 8:45 JST
-  workflow_dispatch:          # 手動実行ボタン（必須）
+    - cron: '45 23 * * 0-4'
+  workflow_dispatch:
 
 jobs:
   send-report:
@@ -18,10 +18,9 @@ jobs:
         run: python3 download-excel.py
         env:
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
-          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
       - name: 計算 → 生成 → デプロイ → 送信
         run: |
-          python3 calc-metrics.py data.xlsx --output metrics.json
+          python3 calc-metrics.py data.xlsx --output metrics.json --sheet-volume '投入量（局単位）'
           python3 generate-html.py metrics.json
           npx surge output/ --domain diagram-dashboard-poc.surge.sh
           python3 send-report.py

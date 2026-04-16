@@ -125,7 +125,7 @@ def calculate(args):
     # 列名を動的に解決する
     sample_work = work_rows[0] if work_rows else {}
     col_bureau = find_col(sample_work, ["局名", "支社名", "拠点名", "部署名"])
-    col_name = find_col(sample_work, ["氏名", "名前", "スタッフ名"])
+    col_name = find_col(sample_work, ["氏名", "名前", "スタッフ名", "作業者ID"])
     col_date = find_col(sample_work, ["日付", "作業日", "日時"])
     col_hours = find_col(sample_work, ["作業時間", "作業時間(h)", "稼働時間", "時間"])
     col_count = find_col(sample_work, ["処理件数", "件数", "処理数"])
@@ -148,7 +148,7 @@ def calculate(args):
     # 人員表から局別スタッフ一覧を構築
     sample_staff = staff_rows[0] if staff_rows else {}
     col_staff_bureau = find_col(sample_staff, ["局名", "支社名", "拠点名"])
-    col_staff_name = find_col(sample_staff, ["氏名", "名前", "スタッフ名"])
+    col_staff_name = find_col(sample_staff, ["氏名", "名前", "スタッフ名", "作業者ID"])
     bureau_staff = defaultdict(list)
     for r in staff_rows:
         b = str(r.get(col_staff_bureau, "")).strip()

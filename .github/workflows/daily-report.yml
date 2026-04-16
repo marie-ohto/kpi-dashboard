@@ -1,0 +1,32 @@
+name: 毎朝レポート配信
+
+on:
+  schedule:
+    - cron: '45 23 * * 0-4'  # 月〜金 8:45 JST
+  workflow_dispatch:          # 手動実行ボタン（必須）
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: 依存パッケージをインストール
+        run: pip install openpyxl playwright requests
+      - name: Excel を Drive から取得
+        run: python3 download-excel.py
+        env:
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
+      - name: 計算 → 生成 → デプロイ → 送信
+        run: |
+          python3 calc-metrics.py data.xlsx --output metrics.json
+          python3 generate-html.py metrics.json
+          npx surge output/ --domain diagram-dashboard-poc.surge.sh
+          python3 send-report.py
+        env:
+          SURGE_TOKEN:   ${{ secrets.SURGE_TOKEN }}
+          GMAIL_USER:    ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS:    ${{ secrets.GMAIL_PASS }}
+          REPORT_TO:     ${{ secrets.REPORT_TO }}

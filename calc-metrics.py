@@ -100,8 +100,15 @@ def to_date_str(val):
 
 
 def safe_float(val, default=0.0):
+    if val is None:
+        return default
+    from datetime import time as _t, datetime as _dt
+    if isinstance(val, _t):
+        return val.hour + val.minute / 60 + val.second / 3600
+    if isinstance(val, _dt):
+        return val.hour + val.minute / 60 + val.second / 3600
     try:
-        return float(val) if val is not None else default
+        return float(val)
     except (TypeError, ValueError):
         return default
 

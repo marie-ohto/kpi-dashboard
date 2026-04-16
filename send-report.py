@@ -52,7 +52,7 @@ def screenshot(html_path: str, out_path: str, width: int = 1000) -> bool:
         page    = browser.new_page(viewport={"width": width, "height": 900})
         page.goto(file_url, wait_until="networkidle", timeout=30000)
         page.wait_for_timeout(1500)  # フォント・アイコン読み込み待機
-        page.screenshot(path=out_path, full_page=True)
+        page.screenshot(path=out_path, clip={"x": 0, "y": 0, "width": width, "height": 420})
         browser.close()
 
     print(f"  スクリーンショット: {out_path}")

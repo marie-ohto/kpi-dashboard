@@ -246,9 +246,9 @@ def scatter_svg(bureaus: list, baseline: float, work_hours: float, period_end: s
     tx_thresh = xp(threshold)
     tx_danger = xp(danger)
     svg.append(f'<line x1="{tx_thresh:.0f}" y1="{Y1}" x2="{tx_thresh:.0f}" y2="{Y2}" stroke="#ffd0bb" stroke-width="1.5" stroke-dasharray="4,2"/>')
-    svg.append(f'<text x="{tx_thresh:.0f}" y="{Y1-3}" text-anchor="middle" font-size="8" fill="#ff9966">適正 {threshold:.0f}</text>')
+    svg.append(f'<text x="{tx_thresh:.0f}" y="{Y1-3}" text-anchor="middle" font-size="8" fill="#ff9966">適正 {work_hours * baseline:.0f}</text>')
     svg.append(f'<line x1="{tx_danger:.0f}" y1="{Y1}" x2="{tx_danger:.0f}" y2="{Y2}" stroke="#ff4e00" stroke-width="1.5" stroke-dasharray="4,2"/>')
-    svg.append(f'<text x="{tx_danger:.0f}" y="{Y1-3}" text-anchor="middle" font-size="8" fill="#ff4e00">危険 {danger:.0f}</text>')
+    svg.append(f'<text x="{tx_danger:.0f}" y="{Y1-3}" text-anchor="middle" font-size="8" fill="#ff4e00">危険 {(work_hours + 1) * baseline:.0f}</text>')
 
     # 軸
     svg.append(f'<line x1="{X1}" y1="{Y2}" x2="{X2}" y2="{Y2}" stroke="#e5e2d9" stroke-width="1"/>')
@@ -603,7 +603,7 @@ def generate_overview(metrics: dict) -> str:
       <div class="bg-ads-surface rounded-xl border border-ads-border p-4">
         <p class="text-xs font-bold text-ads-dim mb-3 uppercase tracking-wide">1人あたり投入量 × 消化率（最終日）</p>
         {scatter_svg(bureaus, baseline, work_hours, period["end"])}
-        <p class="mt-2 text-xs text-ads-muted">右下（高物量・低消化）ゾーンの支社が人員不足の可能性あり。適正ライン = {threshold:.0f}件/人、危険ライン = {danger:.0f}件/人。</p>
+        <p class="mt-2 text-xs text-ads-muted">右下（高物量・低消化）ゾーンの支社が人員不足の可能性あり。適正ライン = {work_hours * baseline:.0f}件/人、危険ライン = {(work_hours + 1) * baseline:.0f}件/人。</p>
       </div>
     </div>
 
@@ -611,7 +611,7 @@ def generate_overview(metrics: dict) -> str:
   <footer class="max-w-3xl mx-auto px-5 pb-8 pt-4 border-t border-ads-border">
     <p class="text-xs text-ads-dim text-center">集計期間: {p_start} — {p_end} ／ 基準値: {baseline:.0f}件/h</p>
   </footer>
-'''.format(threshold=work_hours * baseline, danger=(work_hours + 1) * baseline)
+'''
     html += HTML_FOOT
     return html
 

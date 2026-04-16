@@ -18,7 +18,7 @@ import argparse
 import json
 import sys
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta, date as date_type
 
 try:
     import openpyxl
@@ -37,6 +37,8 @@ def parse_args():
     p.add_argument("--sheet-baseline", default="基準値")
     p.add_argument("--work-hours", type=float, default=7.0,
                    help="1日の平均稼働時間（人員過不足指数の適正ライン計算に使用）")
+    p.add_argument("--date", default=None,
+                   help="集計対象日（YYYY-MM-DD）。省略時は前日。'all' を指定すると全期間")
     return p.parse_args()
 
 
@@ -163,6 +165,16 @@ def calculate(args):
         if b and n:
             bureau_staff[b].append(n)
 
+    # 集計対象日を決定（デフォルト: 前日）
+    if args.date == "all":
+        target_date = None  # フィルタなし
+    elif args.date:
+        target_date = datetime.strptime(args.date, "%Y-%m-%d").strftime("%Y-%m-%d")
+    else:
+        target_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    print(f"  集計対象日: {target_date if target_date else '全期間'}")
+
     # 作業時間シートから個人別・日別の生産性を計算
     # {bureau: {name: {date: productivity}}}
     individual_daily = defaultdict(lambda: defaultdict(dict))
@@ -173,6 +185,8 @@ def calculate(args):
         hours = safe_float(r.get(col_hours))
         count = safe_float(r.get(col_count))
         if not bureau or not name or not date:
+            continue
+        if target_date and date != target_date:
             continue
         prod = round(count / hours, 2) if hours > 0 else 0.0
         individual_daily[bureau][name][date] = prod
@@ -186,6 +200,8 @@ def calculate(args):
         vol_in = safe_float(r.get(col_vol_in) if col_vol_in else None)
         vol_done = safe_float(r.get(col_vol_done) if col_vol_done else None)
         if not bureau or not date:
+            continue
+        if target_date and date != target_date:
             continue
         bureau_volume[bureau][date] = {
             "volume": vol_in,
